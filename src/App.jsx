@@ -1,60 +1,66 @@
-import React, { useState } from 'react';
+import React, { Component } from 'react';
 
-const Matrix = () => {
-  const initialMatrix = Array.from({ length: 3 }, () => Array(3).fill('white'));
-  const [matrix, setMatrix] = useState(initialMatrix);
-  const [clickSequence, setClickSequence] = useState([]);
+class Matrix extends Component {
+  state = {
+    matrix: Array.from({ length: 3 }, () => Array(3).fill('white')),
+    clickSequence: [],
+  };
 
-  const handleClick = (rowIndex, colIndex) => {
+  handleClick = (rowIndex, colIndex) => {
+    const { matrix, clickSequence } = this.state;
     const alreadyClicked = matrix[rowIndex][colIndex] !== 'white';
 
     // Ignore click if the box is already clicked
     if (alreadyClicked) return;
 
     const newMatrix = matrix.map((row, rIdx) =>
-      row.map((cell, cIdx) => (rIdx === rowIndex && cIdx === colIndex ? '#90EE90' : cell))
+      row.map((cell, cIdx) => (rIdx === rowIndex && cIdx === colIndex ? '#00853E' : cell))
     );
+
     const newClickSequence = [...clickSequence, [rowIndex, colIndex]];
 
     if (newClickSequence.length === 9) {
       // Last box clicked, change all clicked boxes to orange in sequence
       newClickSequence.forEach(([r, c], index) => {
         setTimeout(() => {
-          setMatrix((prevMatrix) =>
-            prevMatrix.map((row, rIdx) =>
+          this.setState((prevState) => ({
+            matrix: prevState.matrix.map((row, rIdx) =>
               row.map((cell, cIdx) => (rIdx === r && cIdx === c ? 'orange' : cell))
-            )
-          );
+            ),
+          }));
         }, index * 500);
       });
     }
 
-    setMatrix(newMatrix);
-    setClickSequence(newClickSequence);
+    this.setState({ matrix: newMatrix, clickSequence: newClickSequence });
   };
 
-  return (
-    <div style={styles.appContainer}>
-      <h1 style={styles.heading}>Matrix Color Changer</h1>
-      <div style={styles.container}>
-        {matrix.map((row, rowIndex) =>
-          row.map((color, colIndex) => (
-            <div
-              key={`${rowIndex}-${colIndex}`}
-              onClick={() => handleClick(rowIndex, colIndex)}
-              style={{
-                ...styles.box,
-                backgroundColor: color,
-              }}
-            >
-              {rowIndex * 3 + colIndex + 1}
-            </div>
-          ))
-        )}
+  render() {
+    const { matrix } = this.state;
+
+    return (
+      <div style={styles.appContainer}>
+        <h1 style={styles.heading}>Matrix Color Changer</h1>
+        <div style={styles.container}>
+          {matrix.map((row, rowIndex) =>
+            row.map((color, colIndex) => (
+              <div
+                key={`${rowIndex}-${colIndex}`}
+                onClick={() => this.handleClick(rowIndex, colIndex)}
+                style={{
+                  ...styles.box,
+                  backgroundColor: color,
+                }}
+              >
+                {rowIndex * 3 + colIndex + 1}
+              </div>
+            ))
+          )}
+        </div>
       </div>
-    </div>
-  );
-};
+    );
+  }
+}
 
 const styles = {
   appContainer: {
@@ -106,3 +112,4 @@ const styles = {
 };
 
 export default Matrix;
+
